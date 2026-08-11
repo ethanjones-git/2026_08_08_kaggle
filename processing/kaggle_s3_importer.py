@@ -5,8 +5,9 @@ import boto3
 from boto3.s3.transfer import TransferConfig
 from botocore.exceptions import ClientError
 from requests.exceptions import HTTPError
+from kaggle.api.kaggle_api_extended import KaggleApi
 
-class KaggleS3Uploader:
+class KaggleS3Importer:
 
     def __init__(self, bucket_name="2026-08-08-kaggle-bucket", s3_prefix="kaggle_imports/rsna-knee-abnormality-detection"):
         self.s3_client = boto3.client('s3')
@@ -64,10 +65,10 @@ class KaggleS3Uploader:
         
         raise Exception(f"Exceeded max retries fetching page for token: {page_token}")
 
-    def run(self, competition_name="rsna-knee-abnormality-detection", download_dir="./kaggle_temp"):
-        self.load_kaggle_credentials()
+    def run(self, competition_name="rsna-knee-abnormality-detection", download_dir="./kaggle_temp", page_num = 1):
 
-        from kaggle.api.kaggle_api_extended import KaggleApi
+        self.load_kaggle_credentials()
+        
         api = KaggleApi()
         api.authenticate()
 
@@ -75,7 +76,6 @@ class KaggleS3Uploader:
         os.makedirs(download_dir, exist_ok=True)
         
         page_token = None
-        page_num = 1
         total_uploaded = 0
 
         while True:
@@ -97,10 +97,6 @@ class KaggleS3Uploader:
                 break
 
             print(f"Page {page_num}: Found {len(page_files)} files to process.")
-            for idx, file_item in enumerate(page_files, 1):
-                if hasattr(file_item, "name"):
-                    print(file_item.name)
-            '''
             
             # Process every file on the current page immediately
             for idx, file_item in enumerate(page_files, 1):
@@ -117,21 +113,22 @@ class KaggleS3Uploader:
                 local_target_path = os.path.join(download_dir, file_name)
                 os.makedirs(os.path.dirname(local_target_path), exist_ok=True)
 
-                print(f"[Page {page_num} | File {idx}/{len(page_files)}] Downloading '{file_name}'...")
-                
-                try:
-                    api.competition_download_file(
-                        competition=competition_name,
-                        file_name=file_name,
-                        path=os.path.dirname(local_target_path)
-                    )
+                if 'train' in file_name:
+                    print(f"[Page {page_num} | File {idx}/{len(page_files)}] Downloading '{file_name}'...")
+                    try:
+                        api.competition_download_file(
+                            competition=competition_name,
+                            file_name=file_name,
+                            path=os.path.dirname(local_target_path)
+                        )
+                        time.sleep(3)
 
-                    if os.path.exists(local_target_path):
-                        self.import_file_to_s3(local_target_path, file_name)
-                        total_uploaded += 1
-                except Exception as e:
-                    print(f"Error processing {file_name}: {e}")
-            '''
+                        if os.path.exists(local_target_path):
+                            self.import_file_to_s3(local_target_path, file_name)
+                            total_uploaded += 1
+                    except Exception as e:
+                        print(f"Error processing {file_name}: {e}")
+                
             # Extract next page token
             next_token = None
             if hasattr(response, "next_page_token"):
@@ -145,11 +142,7 @@ class KaggleS3Uploader:
 
             page_token = next_token
             page_num += 1
-            time.sleep(15)
+            time.sleep(3)
 
 
         print(f"\nFinished! Processed {total_uploaded} files across {page_num} pages.")
-
-if __name__ == "__main__":
-    uploader = KaggleS3Uploader(bucket_name="2026-08-08-kaggle-bucket")
-    uploader.run()
