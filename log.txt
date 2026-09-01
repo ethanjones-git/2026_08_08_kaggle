@@ -1,0 +1,6 @@
+08/15/2026
+
+-- purpose document
+-- -- what are you trying to do?
+-- -- debrief what a couple projects are doing?
+-- -- what's your plan? (infastructure, methods, innovations)

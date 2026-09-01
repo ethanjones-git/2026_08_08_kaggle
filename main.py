@@ -1,19 +1,22 @@
-from processing.kaggle_s3_importer import KaggleS3Importer
+import os
+import sys
+import gc
+import re
+import math
+import time
+import json
+import traceback
+import unicodedata
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional, Any
 
+import numpy as np
+import pandas as pd
+import pydicom
 
-class Main:
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+from transformers import AutoModel, AutoConfig
 
-    def __init__(self):
-        pass
-
-    def kaggle_s3_import(self):
-
-        uploader = KaggleS3Importer(bucket_name="2026-08-08-kaggle-bucket")
-
-        uploader.run()
-
-if __name__ == "__main__":
-
-    main = Main()
-
-    main.kaggle_s3_import()
