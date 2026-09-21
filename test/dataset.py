@@ -18,14 +18,6 @@ def dataset_transform_test():
     Feature creation / transformation
     '''
 
-    #df['prompt'] = df['prompt'].str().astype(list)
-    #df["lst_prompt"] = df["prompt"].apply(ast.literal_eval)
-    #df["lst_response_a"] = df["response_a"].apply(ast.literal_eval)
-
-    print(df['lst_prompt'])
-    print(len(df['lst_prompt']))
-
-
     # attach prompt to each response
     for i in ['response_a','response_b']:
         df[i] = "PROMPT: " + df['prompt'] + " RESPONSE: " + df[i]
@@ -63,6 +55,7 @@ def dataset_transform_test():
     # add model features
     data = data.merge(pd.read_csv(data_path + '/_feature_model_categories.csv')['model model_family submodel version'.split()], how = 'left', on = 'model')
 
+    print(data)
 if __name__ == "__main__":
 
     os.chdir('..')
