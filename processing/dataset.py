@@ -6,7 +6,7 @@ import numpy as np
 import torch
 
 def dataset_transform(df:pd.DataFrame) -> pd.DataFrame:
-    
+
     '''
     Feature creation / transformation
     '''
@@ -95,9 +95,7 @@ class CustomTextDataset(Dataset):
     def __init__(self, data_path:str, transform=None, target_transform=None):
 
         # pull train data
-        for i in os.listdir():
-           if i == 'train.csv':
-              df = pd.read_csv(data_path + '/' + i)
+        df = pd.read_csv(data_path)
 
         # wide to long transformation
         self.data = dataset_transform(df)
