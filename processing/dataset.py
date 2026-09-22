@@ -5,17 +5,8 @@ from transformers import BertTokenizer
 import numpy as np
 import torch
 
-def dataset_transform(data:pd.DataFrame) -> pd.DataFrame:
-
-    '''
-    Load data set
-    '''
-    # pull train data
-    data_path = os.getcwd() + '/data'
-    for i in os.listdir(data_path):
-        if i == 'train.csv':
-            df = pd.read_csv(data_path + '/' + i)
-
+def dataset_transform(df:pd.DataFrame) -> pd.DataFrame:
+    
     '''
     Feature creation / transformation
     '''
